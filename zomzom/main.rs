@@ -10,26 +10,22 @@ struct GameContext {
 
 fn main() {
   let mut state : GlobalState = Menu; 
-  let mut game : @GameContext = @GameContext { name : ~""}; 
+  let game : Option<@GameContext> = None; 
 
   loop {
-    let opt : Option<@GameContext> = None; 
     match state {
       Menu => { 
-        (state, opt) = menuLoop(); 
-
-        match opt {
-          Some(ctx) => game = ctx,
-          _ => fail!("")
+        (state, game) = menuLoop(); 
+      },
+      Game => { 
+         match game {
+          Some(g) => {            
+            state = gameLoop(g);
+          },
+          None => fail!("")
         }
       },
-      Game => { /*gameLoop(game)*/ },
       Quit => { return; }
-    }
-
-    match opt {
-      Some(ctx) => game = ctx,
-      _ => fail!("")
     }
   }
 }
@@ -37,7 +33,7 @@ fn main() {
 fn menuLoop() -> (GlobalState, Option<@GameContext>) {
   let reader = std::io::stdin(); 
 
-  println("Enter quit, load or quit."); 
+  println("Enter start, load or quit."); 
 
   loop { 
     let txt = reader.read_line(); 
@@ -61,13 +57,15 @@ fn menuLoop() -> (GlobalState, Option<@GameContext>) {
   }
 }
 
-fn gameLoop(game : @GameContext) {
+fn gameLoop(game : @GameContext) -> GlobalState{
   let reader = std::io::stdin(); 
+  print(fmt!("Starting game %s\n", game.name));
+
   loop { 
     let txt = reader.read_line(); 
 
     match txt {
-      ~"quit" => return,  
+      ~"quit" => return Quit,  
       _ => print(fmt!("%s %s\n", "hello", txt))
     }
   }
