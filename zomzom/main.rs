@@ -10,12 +10,14 @@ struct GameContext {
 
 fn main() {
   let mut state : GlobalState = Menu; 
-  let game : Option<@GameContext> = None; 
+  let mut game : Option<@GameContext> = None; 
 
   loop {
     match state {
       Menu => { 
-        (state, game) = menuLoop(); 
+        let (s, g) = menuLoop(); 
+        state = s;
+        game = g;
       },
       Game => { 
          match game {
